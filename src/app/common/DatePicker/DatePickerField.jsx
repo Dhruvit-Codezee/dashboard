@@ -44,7 +44,6 @@ export function DatePickerField({
           {label}
         </InputLabel>
       )}
-      {console.log('error', error)}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
           {...restField}

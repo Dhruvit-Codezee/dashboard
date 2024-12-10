@@ -24,7 +24,7 @@ export function AutoComplete({
 
     // Find the matching option based on the current key (value)
     const currentOption =
-        options.find((option) => option.value === value) || null;
+        options.find((option) => option.label === value) || null;
 
     return (
         <Stack gap="10px">
@@ -48,7 +48,7 @@ export function AutoComplete({
                 value={currentOption} // Set the current selected option based on the key (value)
                 onChange={(_, selectedOption) => {
                     // Set the key (value) as the selected value
-                    onChange(selectedOption ? selectedOption.value : "");
+                    onChange(selectedOption ? selectedOption.label : "");
                 }}
                 onInputChange={onInputChange}
                 renderInput={(params) => (

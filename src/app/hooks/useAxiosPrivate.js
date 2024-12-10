@@ -15,7 +15,7 @@ export function useAxiosPrivate() {
           config.headers.Authorization === "" ||
           _isNil(config.headers.Authorization)
         ) {
-          config.headers.Authorization = `Bearer ${session.data?.user.token}`;
+          config.headers.Authorization = `token ${session.data?.user.token}`;
         }
 
         return config;

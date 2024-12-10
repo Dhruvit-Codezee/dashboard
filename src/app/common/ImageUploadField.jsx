@@ -10,8 +10,6 @@ import EditIcon from "@mui/icons-material/Edit";
     field: { onChange, value },
   } = useController({ control, name });
 
-  // console.log(error,helperText);
-
   const [preview, setPreview] = useState(
     value ? URL.createObjectURL(value) : null
   );

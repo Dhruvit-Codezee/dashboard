@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { Box, Button } from '@mui/material';
 
 
-export function DataTable({ rows, columns }) {
+export function DataTable({ rows, columns, isLoading }) {
     return (
         <>
             <Paper sx={{
@@ -23,9 +23,10 @@ export function DataTable({ rows, columns }) {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    pageSize={5}
-                    rowsPerPageOptions={[5, 10, 15]}
-                    pageSizeOptions={[5, 10]}
+                    loading={isLoading}
+                    // pageSize={5}
+                    // rowsPerPageOptions={[5, 10, 15]}
+                    // pageSizeOptions={[5, 10]}
                     sx={{
                         '& .MuiDataGrid-columnHeader': {
                             backgroundColor: '#d3d3d3',  // Light grey color for header

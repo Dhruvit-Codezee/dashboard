@@ -11,121 +11,66 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, Button, Grid, InputLabel, Stack } from '@mui/material';
+import { Box, Grid, InputLabel, Stack } from '@mui/material';
 import PageContainer from '../components/container/PageContainer';
 import { useGetBot } from '@/app/hooks/useGetBot';
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CheckBox } from '@/app/common/CheckBox/CheckBox';
 import { RadioGroupField } from '@/app/common/RadioGroupField/RadioGroupField';
 import { DatePickerField } from '@/app/common/DatePicker/DatePickerField';
 import { TextField } from '@/app/common/TextField';
+import { WeightField } from '@/app/common/WeightField';
 import ImageUploadField from '@/app/common/ImageUploadField';
 import { AutoComplete } from '@/app/common/AutoComplete';
 import { HeightPick } from '@/app/common/HeightPick';
+import { useAddBotListData } from './useAddBotListData';
+import { useAddBotImages } from './useAddBotImages';
+import { Button } from '@/app/common/Button';
+import { useDeleteBotListData } from './useDeleteBotListData';
+import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 
-const columns = [
-  { field: 'id', headerName: 'ID', flex: 1, headerClassName: 'custom-header' },
-  {
-    field: 'name',
-    headerName: 'Name',
-    flex: 1,
-    headerClassName: 'custom-header',
-  },
-  {
-    field: 'height',
-    headerName: 'Height',
-    flex: 1,
-    headerClassName: 'custom-header',
-  },
-  {
-    field: 'weight',
-    headerName: 'Weight',
-    flex: 1,
-    headerClassName: 'custom-header',
-  },
-  {
-    field: 'gender',
-    headerName: 'Gender',
-    flex: 1,
-    headerClassName: 'custom-header',
-  },
-  {
-    field: 'age',
-    headerName: 'Age',
-    type: 'number',
-    flex: 1,
-    headerClassName: 'custom-header',
-  },
-  {
-    field: 'interest',
-    headerName: 'Interest',
-    flex: 1,
-    headerClassName: 'custom-header',
-  },
-  {
-    field: 'hobbies',
-    headerName: 'Hobbies',
-    flex: 1,
-    headerClassName: 'custom-header',
-  },
-  {
-    field: 'actions',
-    headerName: 'Actions',
-    flex: 1,
-    headerClassName: 'table-header',
-    renderCell: (params) => (
-      <div>
-        <IconButton color="primary" onClick={() => console.log('Edit', params.id)}>
-          <EditIcon />
-        </IconButton>
-        <IconButton color="error" onClick={() => console.log('Delete', params.id)}>
-          <DeleteIcon />
-        </IconButton>
-        <IconButton color="secondary" onClick={() => console.log("Edit", params.id)}>
-          <AddCircleIcon />
-        </IconButton>
-      </div>
-    )
-  },
-];
 
 const breastSizeOptions = [
-  { label: "Small", value: 'small' },
-  { label: "Medium", value: 'Medium' },
-  { label: "Large", value: 'large' },
-  { label: "Normal", value: 'normal' },
+  { label: "small", value: 'small' },
+  { label: "medium", value: 'Medium' },
+  { label: "large", value: 'large' },
+  { label: "normal", value: 'normal' },
 ];
 
 const buttSizeOptions = [
-  { label: "Small", value: 'small' },
-  { label: "Medium", value: 'medium' },
-  { label: "Large", value: 'large' },
-  { label: "Extra large", value: 'extra_large' },
+  { label: "small", value: 'small' },
+  { label: "medium", value: 'medium' },
+  { label: "large", value: 'large' },
+  { label: "extra large", value: 'extra_large' },
 ];
 
 const genderOptions = [
-  { label: "Male", value: 'male' },
-  { label: "Female", value: 'female' },
-  { label: "Anime Boy", value: 'anim_boy' },
-  { label: "Anime Girl", value: 'anime_girl' },
+  { label: "male", value: 'male' },
+  { label: "female", value: 'female' },
+  { label: "anime boy", value: 'anim_boy' },
+  { label: "anime girl", value: 'anime_girl' },
 ];
 
 const bodySizeOptions = [
-  { label: "Thin", value: 'thin' },
-  { label: "Slim", value: 'slim' },
-  { label: "Athletic", value: 'athletic' },
-  { label: "Muscular", value: 'muscular' },
-  { label: "Curvy", value: 'curvy' },
-  { label: "Plus size", value: 'plus_size' },
+  { label: "thin", value: 'thin' },
+  { label: "slim", value: 'slim' },
+  { label: "athletic", value: 'athletic' },
+  { label: "muscular", value: 'muscular' },
+  { label: "curvy", value: 'curvy' },
+  { label: "plus size", value: 'plus_size' },
 ];
 
 const validationSchema = z.object({
-  // photos: z.string().nullable().refine((value) => !!value, {
+  // photos: z.nullable().refine((value) => !!value, {
   //   message: "Profile is required",
   // }),
+  photos: z.any().refine((value) => !!value, {
+    message: "Profile is required",
+  }),
   name: z.string().nullable().refine((value) => !!value, {
     message: "Name is required",
   }),
@@ -195,13 +140,86 @@ const defaultValues = {
   android_platform: false,
   country_flag: null,
   country_name: null,
-
+  images: []
 };
 
-const Botlist = () => {
+export function Botlist() {
+  const queryClient = useQueryClient();
+
   const [open, setOpen] = useState(false);
 
+  const [openDelete, setOpenDelete] = useState(false);
+
   const [id, setId] = useState("");
+
+  const [botId, setBotId] = useState('');
+
+  const columns = [
+    { field: 'id', headerName: 'ID', flex: 1, headerClassName: 'custom-header' },
+    {
+      field: 'name',
+      headerName: 'Name',
+      flex: 1,
+      headerClassName: 'custom-header',
+    },
+    {
+      field: 'height',
+      headerName: 'Height',
+      flex: 1,
+      headerClassName: 'custom-header',
+    },
+    {
+      field: 'weight',
+      headerName: 'Weight',
+      flex: 1,
+      headerClassName: 'custom-header',
+    },
+    {
+      field: 'gender',
+      headerName: 'Gender',
+      flex: 1,
+      headerClassName: 'custom-header',
+    },
+    {
+      field: 'age',
+      headerName: 'Age',
+      type: 'number',
+      flex: 1,
+      headerClassName: 'custom-header',
+    },
+    {
+      field: 'interest',
+      headerName: 'Interest',
+      flex: 1,
+      headerClassName: 'custom-header',
+    },
+    {
+      field: 'hobbies',
+      headerName: 'Hobbies',
+      flex: 1,
+      headerClassName: 'custom-header',
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      headerClassName: 'table-header',
+      renderCell: (params) => (
+        <div>
+          <IconButton color="primary" onClick={() => console.log('Edit', params.id)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton color="error" onClick={() => { setBotId(params.id); handleClickDeleteOpen(); }}>
+            <DeleteIcon />
+          </IconButton>
+          {/* <IconButton color="secondary" onClick={() => console.log("Edit", params.id)}>
+            <AddCircleIcon />
+          </IconButton> */}
+        </div >
+      )
+    },
+  ];
+
 
   const { data: botListData, isPending: isPendingBotListData } = useGetBot();
 
@@ -215,23 +233,14 @@ const Botlist = () => {
     setOpen(false);
   };
 
-  const handleInputChange = (e) => {
-    // const { name, value } = e.target;
-    // setNewData((prevData) => ({
-    //     ...prevData,
-    //     [name]: value,
-    // }));
+  const handleClickDeleteOpen = () => {
+    setOpenDelete(true);
   };
 
-  const handleAddRow = () => {
-    // const newRow = {
-    //     id: rows.length + 1, // Generate a new ID
-    //     ...newData,
-    // };
-    // setRows((prevRows) => [...prevRows, newRow]); // Update rows
-    // setOpen(false); // Close dialog after adding
-    // setNewData({ firstName: '', lastName: '', age: '', fullName: '' }); // Clear form
+  const handleDeleteClose = () => {
+    setOpenDelete(false);
   };
+
   const {
     watch,
     control,
@@ -247,9 +256,46 @@ const Botlist = () => {
 
   const photos = watch("photos");
   const bg_photo = watch("bg_photo");
+  const images = watch("images");
+  const height = watch("height");
 
-  const onSubmit = async (data) => {
-    setId("dffd")
+  const { mutate, isPending } = useAddBotListData({
+    options: {
+      onSuccess: (data) => {
+
+        setId(data?.data.id);
+
+        // toast.success(data.message);
+      },
+      onError: (error) => toast.error(error),
+    },
+  });
+
+  const { mutate: mutateAddBotImage, isPending: isLoading } = useAddBotImages({
+    options: {
+      onSuccess: (data) => {
+        // toast.success(data.message);
+        setOpen(false);
+        reset();
+        setId('');
+        queryClient.invalidateQueries(['bot']);
+      },
+      onError: (error) => toast.error(error),
+    },
+  });
+  const { mutate: mutateDeleteBotListData, isPending: isDeleteLoading } = useDeleteBotListData({
+    botId: botId,
+    options: {
+      onSuccess: (data) => {
+        // toast.success(data.message);
+        setOpenDelete(false)
+        queryClient.invalidateQueries(['bot']);
+      },
+      onError: (error) => toast.error(error),
+    },
+  });
+
+  const onSubmit = (data) => {
     const formData = new FormData();
 
     for (let key in data) {
@@ -260,19 +306,25 @@ const Botlist = () => {
       formData.append("bg_photo", new Blob([bg_photo], { type: "image/jpeg" }), "background.jpg");
 
     }
-    const response = await fetch("http://192.168.29.31:8080/api/avtars-info/", {
-      method: "POST",
-      headers: {
-        'Authorization': 'token bc464b4c3fc8ca10f15a127ac5463b881224ef74',
-      },
-      body: formData,
-    });
+
+    mutate(formData);
 
   }
+  const handleDelete = () => {
+    mutateDeleteBotListData();
+  }
 
-  // const onMainSubmit = async (data) => {
-  //   console.log('first')
-  // }
+  const onMainSubmit = () => {
+    const formData = new FormData();
+
+    formData.append("avtarinformation", id);
+    if (images) {
+      images.forEach((image, index) => {
+        formData.append("images", new Blob([image], { type: "image/jpeg" }), `images_${index}.jpg`);
+      });
+    }
+    mutateAddBotImage(formData);
+  }
 
   return (
     <>
@@ -283,7 +335,7 @@ const Botlist = () => {
         </Button>
       </Box>
 
-      <DataTable rows={botListData} columns={columns} />
+      <DataTable rows={botListData} columns={columns} isLoading={isPendingBotListData} />
 
       <Dialog open={open} onClose={(event, reason) => {
         if (reason !== "backdropClick") {
@@ -302,7 +354,15 @@ const Botlist = () => {
         <DialogContent>
 
           {id ? <Grid item xs={4}>
-            <DragAndDropUpload />
+
+
+            <DragAndDropUpload
+              name="images"
+              control={control}
+            // error={errors?.image?.message}
+            // helperText="Drag and drop to upload images"
+            />
+
           </Grid> : <Grid container spacing={2}>
 
             <Grid item xs={4}>
@@ -327,7 +387,6 @@ const Botlist = () => {
                 helperText={errors.age?.message}
               />
             </Grid>
-
             <Grid item xs={4}>
 
               <HeightPick
@@ -336,8 +395,8 @@ const Botlist = () => {
                 label="Height"
                 rules={{
                   validate: (value) => {
-                    if (!value || !/^(\d+)'(\d{1,2})?''$/.test(value)) {
-                      return "Height must be in the format '5'11''";
+                    if (!value || !/^(\d+)'(\d{1,2})?"$/.test(value)) {
+                      return `Height must be in the format '5'11"`;
                     }
                     return true;
                   },
@@ -349,12 +408,12 @@ const Botlist = () => {
             </Grid>
 
             <Grid item xs={4}>
-              <TextField
+              <WeightField
                 name="weight"
-                type="number"
                 control={control}
                 label="Weight"
                 required
+                unit="lbs"
                 error={!!errors.weight}
                 helperText={errors.weight?.message}
               />
@@ -502,8 +561,6 @@ const Botlist = () => {
                 name="country_name"
                 control={control}
                 label="Country Name"
-
-
               />
             </Grid>
 
@@ -512,8 +569,6 @@ const Botlist = () => {
                 name="country_flag"
                 control={control}
                 label="Country Flag"
-
-
               />
             </Grid>
 
@@ -581,7 +636,6 @@ const Botlist = () => {
               </Grid>
 
             </Grid>
-
             <Grid item xs={4}>
               <ImageUploadField
                 control={control}
@@ -589,6 +643,8 @@ const Botlist = () => {
                 label="Profile Photo"
                 placeholder="Upload Profile Photo"
                 required
+                error={!!errors.photos}
+                helperText={errors.photos?.message}
               // error={!photos}
               // helperText="Profile is required"
               />
@@ -611,19 +667,31 @@ const Botlist = () => {
           </Grid>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">
+          {!id && <Button onClick={() => { handleClose(); reset(); }} color="secondary">
             Cancel
-          </Button>
-
-          {id ? <Button variant="contained" color="primary">
+          </Button>}
+          {id ? <Button loading={isLoading} variant="contained" onClick={handleSubmit(onMainSubmit)} disabled={images.length === 0} color="primary">
             Submit
-          </Button> : <Button variant="contained" onClick={handleSubmit(onSubmit)} color="primary">
+          </Button> : <Button loading={isPending} variant="contained" onClick={handleSubmit(onSubmit)} color="primary">
             Add
           </Button>}
+        </DialogActions>
+      </Dialog >
+      <Dialog open={openDelete} onClose={handleClose}
+      >
+        <DialogContent>
+          Are you sure you want to delete?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteClose} color="secondary">
+            Cancel
+          </Button>
+          <Button loading={isDeleteLoading} variant="contained" onClick={handleDelete} color="error">
+            Delete
+          </Button>
         </DialogActions>
       </Dialog >
       {/* </PageContainer> */}
     </>
   );
 };
-export default Botlist

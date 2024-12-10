@@ -63,105 +63,107 @@ export default function Login() {
 
   return (
     <PageContainer title="Login" description="this is Login page">
-    <Box
-      sx={{
-        position: "relative",
-        "&:before": {
-          content: '""',
-          background: "radial-gradient(#d2f1df, #d3d7fa, #bad8f4)",
-          backgroundSize: "400% 400%",
-          animation: "gradient 15s ease infinite",
-          position: "absolute",
-          height: "100%",
-          width: "100%",
-          opacity: "0.3",
-        },
-      }}
-    >
-      <Grid
-        container
-        spacing={0}
-        justifyContent="center"
-        sx={{ height: "100vh" }}
-      >
-        <Grid
-          item
-          xs={12}
-          sm={12}
-          lg={4}
-          xl={3}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
+      <form onSubmit={handleSubmit}>
+        <Box
+          sx={{
+            position: "relative",
+            "&:before": {
+              content: '""',
+              background: "radial-gradient(#d2f1df, #d3d7fa, #bad8f4)",
+              backgroundSize: "400% 400%",
+              animation: "gradient 15s ease infinite",
+              position: "absolute",
+              height: "100%",
+              width: "100%",
+              opacity: "0.3",
+            },
+          }}
         >
-          <Card
-            elevation={9}
-            sx={{ p: 4, zIndex: 1, width: "100%", maxWidth: "500px" }}
+          <Grid
+            container
+            spacing={0}
+            justifyContent="center"
+            sx={{ height: "100vh" }}
           >
-            <Box display="flex" alignItems="center" justifyContent="center">
-              <Logo />
-            </Box>
-            <Stack>
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              lg={4}
+              xl={3}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Card
+                elevation={9}
+                sx={{ p: 4, zIndex: 1, width: "100%", maxWidth: "500px" }}
+              >
+                <Box display="flex" alignItems="center" justifyContent="center">
+                  <Logo />
+                </Box>
+                <Stack>
 
-      <Box>
-        <Typography
-          variant="subtitle1"
-          fontWeight={600}
-          component="label"
-          htmlFor="username"
-          mb="5px"
-        >
-          Username
-        </Typography>
-        <CustomTextField   name='email'
-                            value={values.email}
-                            onBlur={handleBlur}
-                            onChange={handleChange}
-                            error={touched.email && Boolean(errors.email)}
-                            helperText={touched.email && errors.email} variant="outlined" fullWidth />
-      </Box>
-      <Box mt="25px">
-        <Typography
-          variant="subtitle1"
-          fontWeight={600}
-          component="label"
-          htmlFor="password"
-          mb="5px"
-        >
-          Password
-        </Typography>
-        <CustomTextField type="password"  name='password'
-                            value={values.password}
-                            onBlur={handleBlur}
-                            onChange={handleChange}
-                            error={touched.password && Boolean(errors.password)}
-                            helperText={touched.password && errors.password} variant="outlined" fullWidth />
-      </Box>
-      <Stack
-        justifyContent="space-between"
-        direction="row"
-        alignItems="center"
-        my={2}
-      >        
-      </Stack>
-    </Stack>
-    <Box>
-      <Button
-        color="primary"
-        variant="contained"
-        size="large"
-        fullWidth
-        onClick={()=>handleSubmit()}
-        type="submit"
-      >
-        Sign In
-      </Button>
-    </Box>
+                  <Box>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                      component="label"
+                      htmlFor="username"
+                      mb="5px"
+                    >
+                      Username
+                    </Typography>
+                    <CustomTextField name='email'
+                      value={values.email}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      error={touched.email && Boolean(errors.email)}
+                      helperText={touched.email && errors.email} variant="outlined" fullWidth />
+                  </Box>
+                  <Box mt="25px">
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                      component="label"
+                      htmlFor="password"
+                      mb="5px"
+                    >
+                      Password
+                    </Typography>
+                    <CustomTextField type="password" name='password'
+                      value={values.password}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      error={touched.password && Boolean(errors.password)}
+                      helperText={touched.password && errors.password} variant="outlined" fullWidth />
+                  </Box>
+                  <Stack
+                    justifyContent="space-between"
+                    direction="row"
+                    alignItems="center"
+                    my={2}
+                  >
+                  </Stack>
+                </Stack>
+                <Box>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    // onClick={() => handleSubmit()}
+                    type="submit"
+                  >
+                    Sign In
+                  </Button>
+                </Box>
 
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
-  </PageContainer>
+              </Card>
+            </Grid>
+          </Grid>
+        </Box>
+      </form>
+    </PageContainer>
   );
 }

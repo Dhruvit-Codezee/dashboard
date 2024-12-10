@@ -15,7 +15,7 @@ export function useGetBot() {
   };
 
   return useQuery({
-    queryKey: ["getBot"],
+    queryKey: ["bot"],
     queryFn: fetchBot,
   });
 }
