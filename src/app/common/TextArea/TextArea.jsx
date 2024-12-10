@@ -40,7 +40,9 @@ export function TextArea({
   return (
     <Stack gap="10px">
       {label && (
-        <InputLabel required={required} disabled={disabled}>
+        <InputLabel required={required} disabled={disabled} sx={{
+          "& .MuiFormLabel-asterisk": { color: "red" },
+        }}>
           {label}
         </InputLabel>
       )}
@@ -63,9 +65,10 @@ export function TextArea({
         <Typography
           variant="caption"
           sx={{
-            color: `${theme.palette.app.color.red[900]}`,
+            color: `red`,
             whiteSpace: "pre",
-            textWrap: "wrap",
+            textWrap: "wrap", 
+            marginLeft: "15px",
           }}
         >
           {helperText}

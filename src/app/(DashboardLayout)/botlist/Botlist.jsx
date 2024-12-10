@@ -6,12 +6,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { DataTable } from '@/app/common/DataTable';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DragAndDropUpload from '@/app/common/DragAndDropUpload';
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, Grid, InputLabel, Stack } from '@mui/material';
+import { Box, Divider, Grid, InputLabel, Stack } from '@mui/material';
 import PageContainer from '../components/container/PageContainer';
 import { useGetBot } from '@/app/hooks/useGetBot';
 import { Controller, useForm } from "react-hook-form";
@@ -31,6 +31,8 @@ import { Button } from '@/app/common/Button';
 import { useDeleteBotListData } from './useDeleteBotListData';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { TextArea } from '@/app/common/TextArea/TextArea';
+import { filterChangedFormFields } from "@/utils/helper";
 
 
 
@@ -65,19 +67,21 @@ const bodySizeOptions = [
 ];
 
 const validationSchema = z.object({
-  // photos: z.nullable().refine((value) => !!value, {
-  //   message: "Profile is required",
-  // }),
+
   photos: z.any().refine((value) => !!value, {
     message: "Profile is required",
   }),
-  name: z.string().nullable().refine((value) => !!value, {
+
+  images: z.array(z.any()).refine((value) => value.length > 0, {
+    message: "Images is required",
+  }),
+
+  name: z.string().refine((value) => !!value, {
     message: "Name is required",
   }),
 
   date_of_birth: z
     .string()
-    .nullable()
     .refine((value) => !!value, {
       message: "Date of Birth is required",
     }),
@@ -86,15 +90,15 @@ const validationSchema = z.object({
     message: "Age is required",
   }),
 
-  description: z.string().nullable().refine((value) => !!value, {
+  description: z.string().refine((value) => !!value, {
     message: "Description is required",
   }),
 
-  gender: z.string().nullable().refine((value) => !!value, {
+  gender: z.string().refine((value) => !!value, {
     message: "Gender is required",
   }),
 
-  height: z.string().nullable().refine((value) => !!value, {
+  height: z.string().refine((value) => !!value, {
     message: "Height is required",
   }),
 
@@ -102,11 +106,11 @@ const validationSchema = z.object({
     message: "Weight is required",
   }),
 
-  interest: z.string().nullable().refine((value) => !!value, {
+  interest: z.string().refine((value) => !!value, {
     message: "Interest is required",
   }),
 
-  hobbies: z.string().nullable().refine((value) => !!value, {
+  hobbies: z.string().refine((value) => !!value, {
     message: "Hobbies is required",
   }),
 
@@ -117,30 +121,30 @@ const validationSchema = z.object({
 });
 
 const defaultValues = {
-  name: null,
+  name: '',
   age: null,
-  height: null,
+  height: '',
   weight: null,
-  gender: null,
-  date_of_birth: null,
-  interest: null,
-  hobbies: null,
-  breast_size: null,
-  butt_size: null,
-  body_size: null,
-  description: null,
+  gender: '',
+  date_of_birth: '',
+  interest: '',
+  hobbies: '',
+  breast_size: '',
+  butt_size: '',
+  body_size: '',
+  description: '',
   family_members: null,
-  photos: null,
-  bg_photo: null,
+  photos: '',
+  bg_photo: '',
   is_premium: false,
   is_nsfw: false,
   new_bot: false,
   web_platform: false,
   ios_platform: false,
   android_platform: false,
-  country_flag: null,
-  country_name: null,
-  images: []
+  country_flag: '',
+  country_name: '',
+  images: [],
 };
 
 export function Botlist() {
@@ -150,7 +154,6 @@ export function Botlist() {
 
   const [openDelete, setOpenDelete] = useState(false);
 
-  const [id, setId] = useState("");
 
   const [botId, setBotId] = useState('');
 
@@ -246,6 +249,7 @@ export function Botlist() {
     control,
     formState: { errors, dirtyFields },
     handleSubmit,
+    getValues,
     setError,
     reset,
   } = useForm({
@@ -254,77 +258,76 @@ export function Botlist() {
     mode: "all",
   });
 
-  const photos = watch("photos");
-  const bg_photo = watch("bg_photo");
   const images = watch("images");
-  const height = watch("height");
-
-  const { mutate, isPending } = useAddBotListData({
-    options: {
-      onSuccess: (data) => {
-
-        setId(data?.data.id);
-
-        // toast.success(data.message);
-      },
-      onError: (error) => toast.error(error),
-    },
-  });
 
   const { mutate: mutateAddBotImage, isPending: isLoading } = useAddBotImages({
     options: {
       onSuccess: (data) => {
-        // toast.success(data.message);
+        toast.success(data?.message);
         setOpen(false);
         reset();
         setId('');
         queryClient.invalidateQueries(['bot']);
       },
-      onError: (error) => toast.error(error),
-    },
-  });
-  const { mutate: mutateDeleteBotListData, isPending: isDeleteLoading } = useDeleteBotListData({
-    botId: botId,
-    options: {
-      onSuccess: (data) => {
-        // toast.success(data.message);
-        setOpenDelete(false)
-        queryClient.invalidateQueries(['bot']);
-      },
-      onError: (error) => toast.error(error),
+      // onError: (error) => toast.error(error),
     },
   });
 
-  const onSubmit = (data) => {
-    const formData = new FormData();
-
-    for (let key in data) {
-      formData.append(key, data[key]);
-    }
-    formData.append("photos", new Blob([photos], { type: "image/jpeg" }), "profile.jpg");
-    if (bg_photo) {
-      formData.append("bg_photo", new Blob([bg_photo], { type: "image/jpeg" }), "background.jpg");
-
-    }
-
-    mutate(formData);
-
-  }
-  const handleDelete = () => {
-    mutateDeleteBotListData();
-  }
-
-  const onMainSubmit = () => {
+  const onMainSubmit = (id) => {
     const formData = new FormData();
 
     formData.append("avtarinformation", id);
     if (images) {
       images.forEach((image, index) => {
-        formData.append("images", new Blob([image], { type: "image/jpeg" }), `images_${index}.jpg`);
+        formData.append("images", image);
       });
     }
     mutateAddBotImage(formData);
   }
+
+  const { mutate, isPending } = useAddBotListData({
+    options: {
+      onSuccess: (data) => {
+
+        onMainSubmit(data?.data.id);
+        // toast.success(data.message);
+      },
+      // onError: (error) => toast.error(error),
+    },
+  });
+
+  const { mutate: mutateDeleteBotListData, isPending: isDeleteLoading } = useDeleteBotListData({
+    botId: botId,
+    options: {
+      onSuccess: (data) => {
+        toast.success(data.message);
+        setOpenDelete(false)
+        queryClient.invalidateQueries(['bot']);
+      },
+      // onError: (error) => toast.error(error),
+    },
+  });
+
+
+  const onSubmit = useCallback(() => {
+
+    const formValues = getValues();
+    const formData = new FormData();
+
+    for (let key in formValues) {
+      if (key === 'images') {
+        continue;
+      }
+      formData.append(key, formValues[key]);
+    }
+
+    mutate(formData)
+
+  }, []);
+
+  const handleDelete = useCallback(() => {
+    mutateDeleteBotListData();
+  }, []);
 
   return (
     <>
@@ -353,73 +356,66 @@ export function Botlist() {
         <DialogTitle>Add New Data</DialogTitle>
         <DialogContent>
 
-          {id ? <Grid item xs={4}>
+          <Grid container spacing={1} sx={{ height: '100%' }}>
 
+            <Grid item xs={6}>
+              <Grid container spacing={2}>
 
-            <DragAndDropUpload
-              name="images"
-              control={control}
-            // error={errors?.image?.message}
-            // helperText="Drag and drop to upload images"
-            />
+                <Grid item xs={4}>
+                  <TextField
+                    name="name"
+                    control={control}
+                    label="Name"
+                    required
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                  />
+                </Grid>
 
-          </Grid> : <Grid container spacing={2}>
+                <Grid item xs={4}>
+                  <TextField
+                    name="age"
+                    type="number"
+                    control={control}
+                    label="Age"
+                    required
+                    error={!!errors.age}
+                    helperText={errors.age?.message}
+                  />
+                </Grid>
+                <Grid item xs={4}>
 
-            <Grid item xs={4}>
-              <TextField
-                name="name"
-                control={control}
-                label="Name"
-                required
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            </Grid>
+                  <HeightPick
+                    name="height"
+                    control={control}
+                    label="Height"
+                    rules={{
+                      validate: (value) => {
+                        if (!value || !/^(\d+)'(\d{1,2})?"$/.test(value)) {
+                          return `Height must be in the format '5'11"`;
+                        }
+                        return true;
+                      },
+                    }}
+                    required
+                    error={!!errors.height}
+                    helperText={errors.height?.message}
+                  />
+                </Grid>
 
-            <Grid item xs={4}>
-              <TextField
-                name="age"
-                type="number"
-                control={control}
-                label="Age"
-                required
-                error={!!errors.age}
-                helperText={errors.age?.message}
-              />
-            </Grid>
-            <Grid item xs={4}>
+                <Grid item xs={4}>
+                  <WeightField
+                    name="weight"
+                    control={control}
+                    label="Weight"
+                    required
+                    unit="lbs"
+                    error={!!errors.weight}
+                    helperText={errors.weight?.message}
+                  />
+                </Grid>
 
-              <HeightPick
-                name="height"
-                control={control}
-                label="Height"
-                rules={{
-                  validate: (value) => {
-                    if (!value || !/^(\d+)'(\d{1,2})?"$/.test(value)) {
-                      return `Height must be in the format '5'11"`;
-                    }
-                    return true;
-                  },
-                }}
-                required
-                error={!!errors.height}
-                helperText={errors.height?.message}
-              />
-            </Grid>
-
-            <Grid item xs={4}>
-              <WeightField
-                name="weight"
-                control={control}
-                label="Weight"
-                required
-                unit="lbs"
-                error={!!errors.weight}
-                helperText={errors.weight?.message}
-              />
-            </Grid>
-
-            {/* <Grid item xs={5} marginTop={4}>
+                {/* <Grid item xs={5} marginTop={4}>
   <RadioGroupField
     name="gender"
     label="Gender"
@@ -449,232 +445,253 @@ export function Botlist() {
   />
 </Grid> */}
 
-            <Grid item xs={4}>
-              <AutoComplete
-                control={control}
-                name="gender"
-                label="Gender"
-                options={genderOptions}
-                required
-                error={!!errors.gender}
-                helperText={errors.gender?.message}
-              />
-            </Grid>
+                <Grid item xs={4}>
+                  <AutoComplete
+                    control={control}
+                    name="gender"
+                    label="Gender"
+                    options={genderOptions}
+                    required
+                    error={!!errors.gender}
+                    helperText={errors.gender?.message}
+                  />
+                </Grid>
 
-            <Grid item xs={4}>
-              <DatePickerField
-                name="date_of_birth"
-                control={control}
-                label="Date of Birth"
-                required
-                error={!!errors.date_of_birth}
-                helperText={errors.date_of_birth?.message}
-              />
-            </Grid>
+                <Grid item xs={4}>
+                  <DatePickerField
+                    name="date_of_birth"
+                    control={control}
+                    label="Date of Birth"
+                    required
+                    error={!!errors.date_of_birth}
+                    helperText={errors.date_of_birth?.message}
+                  />
+                </Grid>
 
-            <Grid item xs={4}>
-              <TextField
-                name="interest"
-                control={control}
-                label="Interest"
-                required
-                error={!!errors.interest}
-                helperText={errors.interest?.message}
-              />
-            </Grid>
+                <Grid item xs={4}>
+                  <TextArea
+                    name="interest"
+                    control={control}
+                    label="Interest"
+                    required
+                    error={!!errors.interest}
+                    helperText={errors.interest?.message}
+                  />
+                </Grid>
 
-            <Grid item xs={4}>
-              <TextField
-                name="hobbies"
-                control={control}
-                label="Hobbies"
-                required
-                error={!!errors.hobbies}
-                helperText={errors.hobbies?.message}
-              />
-            </Grid>
+                <Grid item xs={4}>
+                  <TextArea
+                    name="hobbies"
+                    control={control}
+                    label="Hobbies"
+                    required
+                    error={!!errors.hobbies}
+                    helperText={errors.hobbies?.message}
+                  />
+                </Grid>
+                <Grid item xs={4} >
 
-            <Grid item xs={4}>
-              <AutoComplete
-                control={control}
-                name="breast_size"
-                label="Breast Size"
-                options={breastSizeOptions}
-                defaultValue="bre"
-              // required
-              // error={!!errors.breast_size}
-              // helperText={errors.breast_size?.message}
-              />
-            </Grid>
+                  <TextArea
+                    name="description"
+                    control={control}
+                    label="Description"
+                    required
+                    error={!!errors.description}
+                    helperText={
+                      errors.description?.message
+                    }
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <AutoComplete
+                    control={control}
+                    name="breast_size"
+                    label="Breast Size"
+                    options={breastSizeOptions}
+                    defaultValue="bre"
+                  // required
+                  // error={!!errors.breast_size}
+                  // helperText={errors.breast_size?.message}
+                  />
+                </Grid>
 
-            <Grid item xs={4}>
-              <AutoComplete
-                control={control}
-                name="butt_size"
-                label="Butt Size"
-                options={buttSizeOptions}
-                defaultValue={null}
-              // required
-              // error={!!errors.butt_size}
-              // helperText={errors.butt_size?.message}
-              />
-            </Grid>
+                <Grid item xs={4}>
+                  <AutoComplete
+                    control={control}
+                    name="butt_size"
+                    label="Butt Size"
+                    options={buttSizeOptions}
+                    defaultValue={null}
+                  // required
+                  // error={!!errors.butt_size}
+                  // helperText={errors.butt_size?.message}
+                  />
+                </Grid>
 
-            <Grid item xs={4}>
-              <AutoComplete
-                control={control}
-                name="body_size"
-                label="Body Size"
-                options={bodySizeOptions}
-                defaultValue={null}
-              // required
-              // error={!!errors.body_size}
-              // helperText={errors.body_size?.message}
-              />
-            </Grid>
-
-            <Grid item xs={4} >
-              <TextField
-                name="description"
-                control={control}
-                label="Description"
-                required
-                error={!!errors.description}
-                helperText={errors.description?.message}
-              />
-            </Grid>
-
-            <Grid item xs={4}>
-              <TextField
-                name="family_members"
-                control={control}
-                type="number"
-                label="Family Members"
-                required
-                error={!!errors.family_members}
-                helperText={errors.family_members?.message}
-              />
-            </Grid>
-
-            <Grid item xs={4}>
-              <TextField
-                name="country_name"
-                control={control}
-                label="Country Name"
-              />
-            </Grid>
-
-            <Grid item xs={4}>
-              <TextField
-                name="country_flag"
-                control={control}
-                label="Country Flag"
-              />
-            </Grid>
+                <Grid item xs={4}>
+                  <AutoComplete
+                    control={control}
+                    name="body_size"
+                    label="Body Size"
+                    options={bodySizeOptions}
+                    defaultValue={null}
+                  // required
+                  // error={!!errors.body_size}
+                  // helperText={errors.body_size?.message}
+                  />
+                </Grid>
 
 
-            <Grid
-              container
-              spacing={2}
-              justifyContent="center"
-              alignItems="center"
-              marginTop={2}
-              marginLeft={5}
-            >
-              <Grid item xs={2}>
-                <CheckBox
-                  name="is_premium"
-                  label="Premium:"
-                  control={control}
-                  size="small"
-                />
+
+                <Grid item xs={4}>
+                  <TextField
+                    name="family_members"
+                    control={control}
+                    type="number"
+                    label="Family Members"
+                    required
+                    error={!!errors.family_members}
+                    helperText={errors.family_members?.message}
+                  />
+                </Grid>
+
+                <Grid item xs={4}>
+                  <TextField
+                    name="country_name"
+                    control={control}
+                    label="Country Name"
+                  />
+                </Grid>
+
+                <Grid item xs={4}>
+                  <TextField
+                    name="country_flag"
+                    control={control}
+                    label="Country Flag"
+                  />
+                </Grid>
+
+
+                <Grid
+                  container
+                  spacing={2}
+                  justifyContent="center"
+                  alignItems="center"
+                  marginTop={2}
+                  marginLeft={1}
+                  marginBottom={2}
+                >
+                  <Grid item xs={4}>
+                    <CheckBox
+                      name="is_premium"
+                      label="Premium:"
+                      control={control}
+                      size="small"
+                    />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <CheckBox
+                      name="is_nsfw"
+                      label="NSFW:"
+                      control={control}
+                      size="small"
+                    />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <CheckBox
+                      name="new_bot"
+                      label="New Bot:"
+                      control={control}
+                      size="small"
+                    />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <CheckBox
+                      name="web_platform"
+                      label="Web Platform:"
+                      control={control}
+                      size="small"
+                    />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <CheckBox
+                      name="ios_platform"
+                      label="IOS Platform:"
+                      control={control}
+                      size="small"
+                    />
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <CheckBox
+                      name="android_platform"
+                      label="Android Platform:"
+                      control={control}
+                      size="small"
+                    />
+                  </Grid>
+
+                </Grid>
+                <Grid item xs={4}>
+                  <ImageUploadField
+                    control={control}
+                    name="photos"
+                    label="Profile Photo"
+                    placeholder="Upload Profile Photo"
+                    required
+                    error={!!errors.photos}
+                    helperText={errors.photos?.message}
+                  // error={!photos}
+                  // helperText="Profile is required"
+                  />
+                </Grid>
+
+                <Grid item xs={4}>
+                  <ImageUploadField
+                    control={control}
+                    name="bg_photo"
+                    label="Background photo"
+                    placeholder="Upload Background Photo"
+                  // required
+                  // error={!!errors.bg_photo}
+                  // helperText={errors.bg_photo?.message}
+                  />
+                </Grid>
+
+
+
               </Grid>
-
-              <Grid item xs={2}>
-                <CheckBox
-                  name="is_nsfw"
-                  label="NSFW:"
-                  control={control}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={2}>
-                <CheckBox
-                  name="new_bot"
-                  label="New Bot:"
-                  control={control}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={2}>
-                <CheckBox
-                  name="web_platform"
-                  label="Web Platform:"
-                  control={control}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={2}>
-                <CheckBox
-                  name="ios_platform"
-                  label="IOS Platform:"
-                  control={control}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={2}>
-                <CheckBox
-                  name="android_platform"
-                  label="Android Platform:"
-                  control={control}
-                  size="small"
-                />
-              </Grid>
-
             </Grid>
-            <Grid item xs={4}>
-              <ImageUploadField
+            <Grid item xs={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Divider orientation="vertical" flexItem sx={{
+                borderRightWidth: 1,   // Makes the divider more visible
+                borderColor: 'black',  // Sets the divider color to black
+                height: '100%',
+                borderStyle: 'dashed'
+              }} />
+            </Grid>
+            <Grid item xs={5} >
+              <DragAndDropUpload
+                name="images"
                 control={control}
-                name="photos"
-                label="Profile Photo"
-                placeholder="Upload Profile Photo"
-                required
-                error={!!errors.photos}
-                helperText={errors.photos?.message}
-              // error={!photos}
-              // helperText="Profile is required"
+                error={!!errors.images}
+                helperText={errors.images?.message}
               />
+
             </Grid>
-
-            <Grid item xs={4}>
-              <ImageUploadField
-                control={control}
-                name="bg_photo"
-                label="Background photo"
-                placeholder="Upload Background Photo"
-              // required
-              // error={!!errors.bg_photo}
-              // helperText={errors.bg_photo?.message}
-              />
-            </Grid>
-
-
-
-          </Grid>}
+          </Grid>
         </DialogContent>
         <DialogActions>
-          {!id && <Button onClick={() => { handleClose(); reset(); }} color="secondary">
+          <Button onClick={() => { handleClose(); reset(); }} disabled={isPending || isLoading} color="secondary">
             Cancel
-          </Button>}
-          {id ? <Button loading={isLoading} variant="contained" onClick={handleSubmit(onMainSubmit)} disabled={images.length === 0} color="primary">
+          </Button>
+          <Button loading={isPending || isLoading} variant="contained" onClick={handleSubmit(onSubmit)} color="primary">
             Submit
-          </Button> : <Button loading={isPending} variant="contained" onClick={handleSubmit(onSubmit)} color="primary">
-            Add
-          </Button>}
+          </Button>
         </DialogActions>
       </Dialog >
       <Dialog open={openDelete} onClose={handleClose}

@@ -1,6 +1,9 @@
-const COLORS = {
-    MIRAGE_600: '#3C4858',
-  };
-  
-  export default COLORS;
-  
+export const COLORS = {
+  MIRAGE_600: '#3C4858',
+  IRON_800: '#424242',
+  IRON_400: '#BDBDBD',
+  IRON_200: '#E0E0E0',
+  IRON_50: '#FAFAFA',
+  BUTTERFLY_BLUE_900: '#3E92CC',
+};
+
