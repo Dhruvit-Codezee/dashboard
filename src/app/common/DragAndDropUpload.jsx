@@ -10,14 +10,16 @@ export default function DragAndDropUpload({
     control,
     error = false,
     helperText,
+    disabled = false,
 }) {
     const { field } = useController({ name, control }); // Using useController to get field data and handlers
     const [uploadedImages, setUploadedImages] = useState(field.value || []); // Initialize with existing value
 
     // Handle Drop
     const onDrop = (acceptedFiles) => {
+        if (disabled) return;
         const imageFiles = acceptedFiles.filter(file =>
-            file.type === 'image/jpeg' || file.type === 'image/png'
+            file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp'
         );
 
         const newImages = imageFiles.map((file) =>
@@ -34,6 +36,7 @@ export default function DragAndDropUpload({
 
     // Remove Image from the preview
     const handleRemoveImage = (event, image) => {
+        if (disabled) return;
         event.stopPropagation();
         const updatedImages = uploadedImages.filter((img) => img !== image);
         setUploadedImages(updatedImages);
@@ -49,6 +52,7 @@ export default function DragAndDropUpload({
             'image/webp': []
         },
         multiple: true, // Allow multiple uploads
+        disabled,
     });
 
     return (

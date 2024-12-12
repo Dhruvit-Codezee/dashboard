@@ -1,5 +1,5 @@
+import { useAxiosPrivate } from "@/app/hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
-import { useAxiosPrivate } from "./useAxiosPrivate";
 
 export function useGetBot() {
   const { axiosPrivate } = useAxiosPrivate();

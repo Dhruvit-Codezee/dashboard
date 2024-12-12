@@ -8,7 +8,7 @@ import { SessionLoader } from "@/provider/SessionLoader";
 import { AuthSessionProvider } from "@/provider/AuthSessionProvider";
 import { PublicPageLayout } from "@/layouts/PublicPageLayout";
 import { PrivatePageLayout } from "@/layouts/PrivatePageLayout";
-import ToastElement from "./common/ToastElement";
+import { ToastElement } from "./common/ToastElement";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CssBaseline } from "@mui/material";
 

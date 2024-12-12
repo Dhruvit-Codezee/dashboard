@@ -1,48 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useController, UseControllerProps } from "react-hook-form";
 import { Box, Button, IconButton, InputLabel, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
- const ImageUpload = ({ control, name, label, placeholder, required = false, error = false, helperText
+const ImageUpload = ({
+  control,
+  name,
+  label,
+  placeholder,
+  required = false,
+  error = false,
+  helperText,
 }) => {
+
   const {
     field: { onChange, value },
   } = useController({ control, name });
 
-  const [preview, setPreview] = useState(
-    value ? URL.createObjectURL(value) : null
-  );
+  const [preview, setPreview] = useState(null);
   const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    if (value) {
+      if (typeof value === "string") {
+        setPreview(value);
+      } else if (value instanceof File) {
+        setPreview(URL.createObjectURL(value));
+      }
+    }
+  }, [value]);
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      onChange(file);  // Sends the file to react-hook-form
+      onChange(file);  
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        // Store the binary data as ArrayBuffer (or Base64)
-        const binaryData = reader.result; // ArrayBuffer
-        setPreview(binaryData); // For preview, you can use the data as needed
+        setPreview(reader.result ); 
       };
 
-      // Read file as an ArrayBuffer
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); 
     }
   };
 
   const handleRemoveImage = () => {
-    onChange(null);
+    onChange(null); 
     setPreview(null);
   };
 
   return (
     <>
       <Box display="flex" flexDirection="column" gap={1.5}>
+        
         <InputLabel required={required} sx={{
           '& .MuiFormLabel-asterisk': { color: 'red' },
         }}>{label}</InputLabel>
+
         {preview ? (
           <Box
             position="relative"
@@ -109,13 +124,13 @@ import EditIcon from "@mui/icons-material/Edit";
             />
           </Button>
         )}
-
       </Box>
+
       {error && (
         <Typography
           variant="caption"
           sx={{
-            color: `red`,
+            color: "red",
             whiteSpace: "pre",
             textWrap: "wrap",
             marginLeft: "15px",

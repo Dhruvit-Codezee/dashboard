@@ -6,14 +6,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { DataTable } from '@/app/common/DataTable';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DragAndDropUpload from '@/app/common/DragAndDropUpload';
-import { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useEffect, useMemo } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Box, Divider, Grid, InputLabel, Stack } from '@mui/material';
 import PageContainer from '../components/container/PageContainer';
-import { useGetBot } from '@/app/hooks/useGetBot';
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -33,8 +32,9 @@ import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { TextArea } from '@/app/common/TextArea/TextArea';
 import { filterChangedFormFields } from "@/utils/helper";
-
-
+import { useGetBotListData } from './useGetBotListData';
+import { useGetBot } from './useGetBot';
+import { useEditBotListData } from './useEditBotListData';
 
 const breastSizeOptions = [
   { label: "small", value: 'small' },
@@ -65,23 +65,24 @@ const bodySizeOptions = [
   { label: "curvy", value: 'curvy' },
   { label: "plus size", value: 'plus_size' },
 ];
-
 const validationSchema = z.object({
 
   photos: z.any().refine((value) => !!value, {
     message: "Profile is required",
   }),
+  // images: z.array(z.any()),
 
-  images: z.array(z.any()).refine((value) => value.length > 0, {
-    message: "Images is required",
-  }),
+  // images: z.array(z.any()).refine((value) => value.length > 0, {
+  //   message: "Images is required",
+  // }),
 
-  name: z.string().refine((value) => !!value, {
+  name: z.string().nullable().refine((value) => !!value, {
     message: "Name is required",
   }),
 
   date_of_birth: z
     .string()
+    .nullable()
     .refine((value) => !!value, {
       message: "Date of Birth is required",
     }),
@@ -90,15 +91,15 @@ const validationSchema = z.object({
     message: "Age is required",
   }),
 
-  description: z.string().refine((value) => !!value, {
+  description: z.string().nullable().refine((value) => !!value, {
     message: "Description is required",
   }),
 
-  gender: z.string().refine((value) => !!value, {
+  gender: z.string().nullable().refine((value) => !!value, {
     message: "Gender is required",
   }),
 
-  height: z.string().refine((value) => !!value, {
+  height: z.string().nullable().refine((value) => !!value, {
     message: "Height is required",
   }),
 
@@ -106,11 +107,11 @@ const validationSchema = z.object({
     message: "Weight is required",
   }),
 
-  interest: z.string().refine((value) => !!value, {
+  interest: z.string().nullable().refine((value) => !!value, {
     message: "Interest is required",
   }),
 
-  hobbies: z.string().refine((value) => !!value, {
+  hobbies: z.string().nullable().refine((value) => !!value, {
     message: "Hobbies is required",
   }),
 
@@ -121,43 +122,94 @@ const validationSchema = z.object({
 });
 
 const defaultValues = {
-  name: '',
+  name: null,
   age: null,
-  height: '',
+  height: null,
   weight: null,
-  gender: '',
-  date_of_birth: '',
-  interest: '',
-  hobbies: '',
-  breast_size: '',
-  butt_size: '',
-  body_size: '',
-  description: '',
+  gender: null,
+  date_of_birth: null,
+  interest: null,
+  hobbies: null,
+  breast_size: null,
+  butt_size: null,
+  body_size: null,
+  description: null,
   family_members: null,
-  photos: '',
-  bg_photo: '',
+  photos: null,
+  bg_photo: null,
   is_premium: false,
   is_nsfw: false,
   new_bot: false,
   web_platform: false,
   ios_platform: false,
   android_platform: false,
-  country_flag: '',
-  country_name: '',
+  country_flag: null,
+  country_name: null,
   images: [],
+  is_active: false,
 };
 
-export function Botlist() {
+export const Botlist = memo(() => {
+
   const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
 
   const [openDelete, setOpenDelete] = useState(false);
 
-
   const [botId, setBotId] = useState('');
 
-  const columns = [
+  const [botEditId, setBotEditId] = useState('');
+
+  // const updatedSchema = validationSchema.superRefine(
+  //   (data, ctx) => {
+  //     if (!botEditId && !data.images) {
+  //       ctx.addIssue({
+  //         code: z.ZodIssueCode.custom,
+  //         path: ["images"],
+  //         message: "Images is required",
+  //       });
+  //     }
+  //   }
+  // );
+
+  const {
+    watch,
+    control,
+    formState: { errors, dirtyFields },
+    handleSubmit,
+    getValues,
+    setError,
+    reset,
+  } = useForm({
+    defaultValues,
+    resolver: zodResolver(validationSchema),
+    mode: "all",
+  });
+
+  const images = watch('images');
+
+  const handleOpen = useCallback(() => {
+    setOpen(true);
+  }, [open]);
+
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    reset();
+    if (botEditId) {
+      setBotEditId('');
+    }
+  }, [open, reset, botEditId]);
+
+  const handleClickDeleteOpen = useCallback(() => {
+    setOpenDelete(true);
+  }, [openDelete]);
+
+  const handleDeleteClose = useCallback(() => {
+    setOpenDelete(false);
+  }, [openDelete]);
+
+  const columns = useMemo(() => [
     { field: 'id', headerName: 'ID', flex: 1, headerClassName: 'custom-header' },
     {
       field: 'name',
@@ -209,7 +261,7 @@ export function Botlist() {
       headerClassName: 'table-header',
       renderCell: (params) => (
         <div>
-          <IconButton color="primary" onClick={() => console.log('Edit', params.id)}>
+          <IconButton color="primary" onClick={() => { setBotEditId(params.id); handleOpen(); }}>
             <EditIcon />
           </IconButton>
           <IconButton color="error" onClick={() => { setBotId(params.id); handleClickDeleteOpen(); }}>
@@ -221,69 +273,90 @@ export function Botlist() {
         </div >
       )
     },
-  ];
-
+  ], []);
 
   const { data: botListData, isPending: isPendingBotListData } = useGetBot();
 
-
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleClickDeleteOpen = () => {
-    setOpenDelete(true);
-  };
-
-  const handleDeleteClose = () => {
-    setOpenDelete(false);
-  };
-
-  const {
-    watch,
-    control,
-    formState: { errors, dirtyFields },
-    handleSubmit,
-    getValues,
-    setError,
-    reset,
-  } = useForm({
-    defaultValues,
-    resolver: zodResolver(validationSchema),
-    mode: "all",
+  const { mutate: mutateEditBotData, isPending: isEditLoading } = useEditBotListData({
+    botEditId,
+    options: {
+      onSuccess: (data) => {
+        handleClose();
+        queryClient.invalidateQueries(['bot']);
+        toast.success(data.message);
+      },
+      // onError: (error) => onError(error, formRef.current?.setError),
+    },
   });
 
-  const images = watch("images");
+  const { data: botData, isPending: isGetLoading } =
+    useGetBotListData({
+      botEditId,
+    });
+
+  useEffect(() => {
+    // reset({ ...defaultValues, ...botData, photos: botData?.profile_photo });
+    reset({
+
+
+      name: botData?.name || null,
+      age: botData?.age || null,
+      height: botData?.height || null,
+      weight: Number(botData?.weight) || null,
+      gender: botData?.gender || null,
+      date_of_birth: botData?.date_of_birth || null,
+      interest: botData?.interest || null,
+      hobbies: botData?.hobbies || null,
+      breast_size: botData?.breast_size || null,
+      butt_size: botData?.butt_size || null,
+      body_size: botData?.body_size || null,
+      description: botData?.description || null,
+      family_members: Number(botData?.family_members) || null,
+      photos: botData?.profile_photo || null,
+      bg_photo: botData?.bg_photo || null,
+      is_premium: botData?.is_premium || false,
+      is_nsfw: botData?.is_nsfw || false,
+      new_bot: botData?.new_bot || false,
+      web_platform: botData?.web_platform || false,
+      ios_platform: botData?.ios_platform || false,
+      android_platform: botData?.android_platform || false,
+      country_flag: botData?.country_flag || null,
+      country_name: botData?.country_name || null,
+      // images: [],
+    });
+
+
+  }, [botData])
 
   const { mutate: mutateAddBotImage, isPending: isLoading } = useAddBotImages({
     options: {
       onSuccess: (data) => {
-        toast.success(data?.message);
-        setOpen(false);
-        reset();
-        setId('');
         queryClient.invalidateQueries(['bot']);
+        toast.success(data?.message);
+        handleClose();
       },
       // onError: (error) => toast.error(error),
     },
   });
 
-  const onMainSubmit = (id) => {
+  const onMainSubmit = useCallback((id) => {
+
     const formData = new FormData();
 
     formData.append("avtarinformation", id);
+
     if (images) {
+
       images.forEach((image, index) => {
         formData.append("images", image);
+
       });
+
     }
+
     mutateAddBotImage(formData);
-  }
+
+  }, [images, mutateAddBotImage])
 
   const { mutate, isPending } = useAddBotListData({
     options: {
@@ -311,57 +384,88 @@ export function Botlist() {
 
   const onSubmit = useCallback(() => {
 
-    const formValues = getValues();
+    const allField = getValues();
     const formData = new FormData();
-
-    for (let key in formValues) {
-      if (key === 'images') {
+    const filterFormValues = filterChangedFormFields(
+      allField,
+      dirtyFields
+    );
+    const payload = botEditId ? filterFormValues : allField;
+    for (let key in payload) {
+      if (key === 'images' || botEditId) {
         continue;
       }
-      formData.append(key, formValues[key]);
+      // if (key === 'is_active') {
+      //   if (botEditId) {
+      //     payload.append('is_active', payload[key])
+      //   } else {
+      //     continue;
+      //   }
+      // }
+      formData.append(key, payload[key] || '');
     }
 
-    mutate(formData)
+    if (botEditId) {
 
-  }, []);
+      mutateEditBotData(payload);
+    }
+    else {
+      mutate(payload);
+    }
+
+  }, [mutate, mutateEditBotData, dirtyFields]);
 
   const handleDelete = useCallback(() => {
     mutateDeleteBotListData();
-  }, []);
+  }, [mutateDeleteBotListData]);
 
   return (
     <>
       {/* <PageContainer title="Botlist" description="this is Botlist"> */}
+
       <Box display="flex" justifyContent="flex-end" marginBottom={2}>
-        <Button variant="contained" color="primary" onClick={handleClickOpen}>
+
+        <Button variant="contained" color="primary" onClick={handleOpen}>
+
           Add New Data
+
         </Button>
+
       </Box>
 
       <DataTable rows={botListData} columns={columns} isLoading={isPendingBotListData} />
 
-      <Dialog open={open} onClose={(event, reason) => {
-        if (reason !== "backdropClick") {
-          handleClose();
-        }
-      }} sx={{
-        '& .MuiDialog-paper': {
-          height: '100%',
-          maxWidth: "1500px",
-          width: "1500px"
-        },
-      }}
+      <Dialog
+        open={open}
+        onClose={(event, reason) => {
+
+          if (reason !== "backdropClick") {
+            handleClose();
+          }
+        }}
+        sx={{
+          '& .MuiDialog-paper': {
+            height: '100%',
+            maxWidth: "1500px",
+            width: "1500px"
+          },
+        }}
         disableEscapeKeyDown
+
       >
+
         <DialogTitle>Add New Data</DialogTitle>
+
         <DialogContent>
 
           <Grid container spacing={1} sx={{ height: '100%' }}>
 
             <Grid item xs={6}>
+
               <Grid container spacing={2}>
 
                 <Grid item xs={4}>
+
                   <TextField
                     name="name"
                     control={control}
@@ -370,9 +474,11 @@ export function Botlist() {
                     error={!!errors.name}
                     helperText={errors.name?.message}
                   />
+
                 </Grid>
 
                 <Grid item xs={4}>
+
                   <TextField
                     name="age"
                     type="number"
@@ -382,7 +488,9 @@ export function Botlist() {
                     error={!!errors.age}
                     helperText={errors.age?.message}
                   />
+
                 </Grid>
+
                 <Grid item xs={4}>
 
                   <HeightPick
@@ -401,8 +509,8 @@ export function Botlist() {
                     error={!!errors.height}
                     helperText={errors.height?.message}
                   />
-                </Grid>
 
+                </Grid>
                 <Grid item xs={4}>
                   <WeightField
                     name="weight"
@@ -635,6 +743,15 @@ export function Botlist() {
                     />
                   </Grid>
 
+                  {botEditId && <Grid item xs={4}>
+                    <CheckBox
+                      name="is_active"
+                      label="Active:"
+                      control={control}
+                      size="small"
+                    />
+                  </Grid>}
+
                 </Grid>
                 <Grid item xs={4}>
                   <ImageUploadField
@@ -662,53 +779,73 @@ export function Botlist() {
                   />
                 </Grid>
 
-
-
               </Grid>
+
             </Grid>
+
             <Grid item xs={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
               <Divider orientation="vertical" flexItem sx={{
                 borderRightWidth: 1,   // Makes the divider more visible
                 borderColor: 'black',  // Sets the divider color to black
                 height: '100%',
                 borderStyle: 'dashed'
-              }} />
+              }}
+              />
+
             </Grid>
+
             <Grid item xs={5} >
+
               <DragAndDropUpload
                 name="images"
                 control={control}
                 error={!!errors.images}
                 helperText={errors.images?.message}
+                disabled={botEditId}
               />
 
             </Grid>
+
           </Grid>
+
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={() => { handleClose(); reset(); }} disabled={isPending || isLoading} color="secondary">
+
+          <Button onClick={() => { handleClose(); }} disabled={isPending || isLoading || isEditLoading} color="secondary">
             Cancel
           </Button>
-          <Button loading={isPending || isLoading} variant="contained" onClick={handleSubmit(onSubmit)} color="primary">
-            Submit
+
+          <Button loading={isPending || isLoading || isEditLoading} variant="contained" onClick={handleSubmit(onSubmit)} color="primary">
+            {botData ? "Update" : "Submit"}
           </Button>
+
         </DialogActions>
+
       </Dialog >
+
       <Dialog open={openDelete} onClose={handleClose}
       >
+
         <DialogContent>
           Are you sure you want to delete?
         </DialogContent>
+
         <DialogActions>
+
           <Button onClick={handleDeleteClose} color="secondary">
             Cancel
           </Button>
           <Button loading={isDeleteLoading} variant="contained" onClick={handleDelete} color="error">
             Delete
           </Button>
+
         </DialogActions>
+
       </Dialog >
+
       {/* </PageContainer> */}
     </>
   );
-};
+});

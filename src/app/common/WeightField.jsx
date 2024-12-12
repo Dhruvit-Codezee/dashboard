@@ -49,7 +49,7 @@ export function WeightField({
                 fullWidth
                 placeholder={placeholder || label}
                 type="text" // Use text type to allow better control
-                value={value || ""}
+                value={value}
                 onKeyPress={handleKeyPress}
                 onChange={(event) => {
                     const numericValue = event.target.value.replace(/\D/g, ""); // Remove non-numeric characters
