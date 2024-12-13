@@ -1,9 +1,9 @@
-import Login from "@/app/common/Login";
+import Login from "@/app/component/Login";
 
 export default function Page() {
   return (
     <div>
-      <Login/>
+      <Login />
     </div>
   );
 }

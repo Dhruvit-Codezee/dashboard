@@ -1,18 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
-import { useState } from 'react';
-import { Box, Button } from '@mui/material';
+import { forwardRef } from 'react';
+import { COLORS } from '@/constants/colors';
 
 
-export function DataTable({ rows, columns, isLoading }) {
+
+export const DataTable = forwardRef(({ ref, rows, columns, loading }) => {
     return (
         <>
             <Paper sx={{
@@ -21,12 +17,31 @@ export function DataTable({ rows, columns, isLoading }) {
             }}>
 
                 <DataGrid
+                    initialState={{
+                        filter: {
+                            filterModel: {
+                                items: [],
+                                quickFilterValues: [],
+                            },
+                        },
+                    }}
+                    ref={ref}
                     rows={rows}
                     columns={columns}
-                    loading={isLoading}
+                    loading={loading}
                     // pageSize={5}
                     // rowsPerPageOptions={[5, 10, 15]}
                     // pageSizeOptions={[5, 10]}
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+
+                    slots={{ toolbar: GridToolbar }}
+                    slotProps={{
+                        toolbar: {
+                            showQuickFilter: true,
+                        },
+                    }}
                     sx={{
                         '& .MuiDataGrid-columnHeader': {
                             backgroundColor: '#d3d3d3',  // Light grey color for header
@@ -48,10 +63,19 @@ export function DataTable({ rows, columns, isLoading }) {
                         '& .MuiDataGrid-columnSeparator': {
                             display: 'none',  // Removing column separator
                         },
+                        '& .MuiDataGrid-toolbarContainer': {
+                            padding: '10px'
+                        },
+                        '& .MuiDataGrid-toolbarQuickFilter': {
+                            backgroundColor: `${COLORS.IRON_50}`
+                        },
+                        // '& .MuiButtonBase-root': {
+                        //     display: `none`
+                        // }
                     }}
                 />
             </Paper>
 
         </>
     );
-}
+});

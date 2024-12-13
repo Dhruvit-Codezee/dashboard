@@ -33,6 +33,7 @@ export function HeightPick({
 
     const handleInputChange = (e, maxLength) => {
         const value = e.target.value.slice(0, maxLength); // Limit to maxLength characters
+
         return value.replace(/^0+(?=\d)/, ""); // Remove leading zeros
     };
 

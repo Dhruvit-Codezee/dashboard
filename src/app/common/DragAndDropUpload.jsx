@@ -5,7 +5,7 @@ import { Box, Button, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { useController } from 'react-hook-form';
 
-export default function DragAndDropUpload({
+export function DragAndDropUpload({
     name,
     control,
     error = false,

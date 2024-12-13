@@ -4,16 +4,16 @@ import { useAxiosPrivate } from "@/app/hooks/useAxiosPrivate";
 import { useMutation } from "@tanstack/react-query";
 
 export function useEditBotListData({
-  botEditId,
+  botId,
   options = {},
 }) {
   const { axiosPrivate } = useAxiosPrivate();
 
   return useMutation({
-    mutationKey: ['bot', "edit", botEditId,],
+    mutationKey: ['bot', "edit", botId],
     mutationFn: async (formValues) => {
       const { data } = await axiosPrivate.put(
-        `api/avtar-profile/${botEditId}/`,
+        `api/avtar-profile/${botId}/`,
         formValues,
         {
           headers: {

@@ -1,23 +1,22 @@
 import { useAxiosPrivate } from "@/app/hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetBotListData = ({ botEditId }) => {
+export const useGetBotListData = ({ botId }) => {
   const { axiosPrivate } = useAxiosPrivate();
-
   const fetchBotListData = async () => {
     const {
       data: { data },
     } = await axiosPrivate.get(
-      `api/avtar-profile/${botEditId}/`
+      `api/avtar-profile/${botId}/`
     );
 
     return data;
   };
 
   return useQuery({
-    queryKey: ["bot", "get", botEditId],
+    queryKey: ["bot", "get"],
     queryFn: fetchBotListData,
-    enabled: !!botEditId,
+    enabled: !!botId,
   });
 };
 

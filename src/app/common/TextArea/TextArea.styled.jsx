@@ -1,5 +1,5 @@
+import { COLORS } from "@/constants/colors";
 import { TextareaAutosize, styled } from "@mui/material";
-import { COLORS } from "@/constants/COLORS";
 
 export const TextAreaContainer = styled(
   TextareaAutosize
@@ -23,5 +23,8 @@ export const TextAreaContainer = styled(
   },
   "&:focus-visible": {
     outline: 0,
+  },
+  "&::placeholder": {
+    color: COLORS.IRON_400, // Replace with your desired placeholder color
   },
 }));

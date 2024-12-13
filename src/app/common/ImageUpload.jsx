@@ -4,7 +4,7 @@ import { Box, Button, IconButton, InputLabel, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
-const ImageUpload = ({
+export function ImageUpload({
   control,
   name,
   label,
@@ -12,7 +12,7 @@ const ImageUpload = ({
   required = false,
   error = false,
   helperText,
-}) => {
+}) {
 
   const {
     field: { onChange, value },
@@ -34,26 +34,26 @@ const ImageUpload = ({
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      onChange(file);  
+      onChange(file);
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        setPreview(reader.result ); 
+        setPreview(reader.result);
       };
 
-      reader.readAsDataURL(file); 
+      reader.readAsDataURL(file);
     }
   };
 
   const handleRemoveImage = () => {
-    onChange(null); 
+    onChange(null);
     setPreview(null);
   };
 
   return (
     <>
       <Box display="flex" flexDirection="column" gap={1.5}>
-        
+
         <InputLabel required={required} sx={{
           '& .MuiFormLabel-asterisk': { color: 'red' },
         }}>{label}</InputLabel>
@@ -141,6 +141,5 @@ const ImageUpload = ({
       )}
     </>
   );
-};
+}
 
-export default ImageUpload;
