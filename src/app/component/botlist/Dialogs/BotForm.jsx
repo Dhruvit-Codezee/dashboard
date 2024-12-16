@@ -160,10 +160,6 @@ export const BotForm = forwardRef(
       setError,
     }));
 
-    // const errorMessages = (messageKey?: string) => {
-    //   return messageKey && t(messageKey);
-    // };
-
     useMemo(() => {
       if (!defaultValues.id && !images.length) {
         setError('images', { message: "Images are required" })

@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper';
 import { forwardRef } from 'react';
 import { COLORS } from '@/constants/colors';
 
-export const DataTable = forwardRef(({ ref, rows, columns, loading }) => {
+export const DataTable = forwardRef(({ rows, columns, loading }, ref) => {
     return (
         <>
             <Paper sx={{

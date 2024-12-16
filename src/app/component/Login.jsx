@@ -6,7 +6,6 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Logo from "@/app/(DashboardLayout)/layout/shared/logo/Logo";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
-import CustomTextField from "../(DashboardLayout)/components/forms/theme-elements/CustomTextField";
 import toast from "react-hot-toast";
 import { emailRegex } from "@/utils/regex";
 import { useForm } from "react-hook-form";
