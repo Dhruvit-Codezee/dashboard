@@ -6,8 +6,6 @@ import Paper from '@mui/material/Paper';
 import { forwardRef } from 'react';
 import { COLORS } from '@/constants/colors';
 
-
-
 export const DataTable = forwardRef(({ ref, rows, columns, loading }) => {
     return (
         <>
@@ -29,13 +27,9 @@ export const DataTable = forwardRef(({ ref, rows, columns, loading }) => {
                     rows={rows}
                     columns={columns}
                     loading={loading}
-                    // pageSize={5}
-                    // rowsPerPageOptions={[5, 10, 15]}
-                    // pageSizeOptions={[5, 10]}
                     disableColumnFilter
                     disableColumnSelector
                     disableDensitySelector
-
                     slots={{ toolbar: GridToolbar }}
                     slotProps={{
                         toolbar: {
@@ -44,24 +38,24 @@ export const DataTable = forwardRef(({ ref, rows, columns, loading }) => {
                     }}
                     sx={{
                         '& .MuiDataGrid-columnHeader': {
-                            backgroundColor: '#d3d3d3',  // Light grey color for header
-                            color: '#000',  // Black text for better readability
-                            fontWeight: '600',  // Bold text
+                            backgroundColor: '#d3d3d3',
+                            color: '#000',
+                            fontWeight: '600',
                             fontSize: '1.1rem',
-                            borderBottom: '2px solid #ccc',  // Light border for separation
+                            borderBottom: '2px solid #ccc',
                             borderRadius: '0',
                         },
                         '& .MuiDataGrid-columnHeaderTitle': {
-                            textTransform: 'uppercase',  // Uppercase text for headers
+                            textTransform: 'uppercase',
                         },
                         '& .MuiDataGrid-cell': {
-                            padding: '12px 16px',  // Padding for cells
+                            padding: '12px 16px',
                         },
                         '& .MuiDataGrid-row:hover': {
-                            backgroundColor: '#ecf0f1',  // Hover effect for rows
+                            backgroundColor: '#ecf0f1',
                         },
                         '& .MuiDataGrid-columnSeparator': {
-                            display: 'none',  // Removing column separator
+                            display: 'none',
                         },
                         '& .MuiDataGrid-toolbarContainer': {
                             padding: '10px'
@@ -69,9 +63,6 @@ export const DataTable = forwardRef(({ ref, rows, columns, loading }) => {
                         '& .MuiDataGrid-toolbarQuickFilter': {
                             backgroundColor: `${COLORS.IRON_50}`
                         },
-                        // '& .MuiButtonBase-root': {
-                        //     display: `none`
-                        // }
                     }}
                 />
             </Paper>

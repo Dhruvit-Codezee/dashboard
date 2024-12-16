@@ -3,6 +3,7 @@ import { useController, UseControllerProps } from "react-hook-form";
 import { Box, Button, IconButton, InputLabel, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { Skeleton } from "./TextField/Skeleton";
 
 export function ImageUpload({
   control,
@@ -12,6 +13,8 @@ export function ImageUpload({
   required = false,
   error = false,
   helperText,
+  loading = false,
+  rows
 }) {
 
   const {
@@ -49,6 +52,11 @@ export function ImageUpload({
     onChange(null);
     setPreview(null);
   };
+
+
+  if (loading) {
+    return <Skeleton rows={rows} />;
+  }
 
   return (
     <>

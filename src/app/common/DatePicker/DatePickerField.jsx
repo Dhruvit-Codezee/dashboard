@@ -5,6 +5,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import { Skeleton } from './Skeleton';
 
 export function DatePickerField({
   control,
@@ -26,11 +27,16 @@ export function DatePickerField({
   } = useController({ name, control, defaultValue, rules });
 
   const [open, setOpen] = useState(false);
+
   const handleDateChange = (newValue) => {
-    // Convert the selected date to a string format (e.g., 'YYYY-MM-DD')
-    const formattedValue = newValue ? newValue.format('YYYY-MM-DD HH:mm:ss') : ''; // Format as 'YYYY-MM-DD'
-    onChange(formattedValue); // Pass the formatted date string to onChange
+    const formattedValue = newValue ? newValue.format('YYYY-MM-DD HH:mm:ss') : ''; 
+    onChange(formattedValue); 
   };
+
+  if (loading) {
+    return <Skeleton />;
+  }
+
   return (
     <Stack gap="10px">
       {label && (

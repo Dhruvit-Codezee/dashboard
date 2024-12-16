@@ -25,6 +25,6 @@ export const TextAreaContainer = styled(
     outline: 0,
   },
   "&::placeholder": {
-    color: COLORS.IRON_400, // Replace with your desired placeholder color
+    color: COLORS.IRON_400, 
   },
 }));

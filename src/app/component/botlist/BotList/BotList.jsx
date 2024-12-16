@@ -28,15 +28,16 @@ export const BotList = forwardRef(
       useState();
     // const [loading, setLoading] = useState(false);
 
+    const { data, isPending, refetch } = useGetBot();
+
     const { columns } = useBotColumns({
       onAction: (actionType, bot) => {
         onDialogOpen(actionType);
         setCurrentBot(bot);
       },
-      // loading,
+      loading: isPending,
     });
 
-    const { data, isPending, refetch } = useGetBot();
 
     // const { getBots } = useGetBotsQueryFn();
 

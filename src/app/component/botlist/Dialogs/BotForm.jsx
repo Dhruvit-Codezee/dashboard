@@ -5,14 +5,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CheckBox } from '@/app/common/CheckBox/CheckBox';
 import { DatePickerField } from '@/app/common/DatePicker/DatePickerField';
-import { TextField } from '@/app/common/TextField';
+import { TextField } from '@/app/common/TextField/TextField';
 import { WeightField } from '@/app/common/WeightField';
-import { AutoComplete } from '@/app/common/AutoComplete';
+import { AutoComplete } from '@/app/common/AutoComplete/AutoComplete';
 import { HeightPick } from '@/app/common/HeightPick';
 import { filterChangedFormFields } from "@/utils/helper";
 import { TextArea } from '@/app/common/TextArea/TextArea';
 import { bodySizeOptions, breastSizeOptions, buttSizeOptions, genderOptions } from "@/utils/option";
-import {DragAndDropUpload} from "@/app/common/DragAndDropUpload";
+import { DragAndDropUpload } from "@/app/common/DragAndDropUpload";
 import { ImageUpload } from "@/app/common/ImageUpload";
 
 const ValidationSchema = z.object({
@@ -186,6 +186,7 @@ export const BotForm = forwardRef(
                 control={control}
                 label="Name"
                 required
+                loading={loading}
                 error={!!errors.name}
                 helperText={errors.name?.message}
               />
@@ -200,6 +201,7 @@ export const BotForm = forwardRef(
                 control={control}
                 label="Age"
                 required
+                loading={loading}
                 error={!!errors.age}
                 helperText={errors.age?.message}
               />
@@ -212,6 +214,7 @@ export const BotForm = forwardRef(
                 name="height"
                 control={control}
                 label="Height"
+                loading={loading}
                 rules={{
                   validate: (value) => {
                     if (!value || !/^(\d+)'(\d{1,2})?"$/.test(value)) {
@@ -232,6 +235,7 @@ export const BotForm = forwardRef(
                 control={control}
                 label="Weight"
                 required
+                loading={loading}
                 unit="lbs"
                 error={!!errors.weight}
                 helperText={errors.weight?.message}
@@ -275,6 +279,7 @@ export const BotForm = forwardRef(
                 label="Gender"
                 options={genderOptions}
                 required
+                loading={loading}
                 error={!!errors.gender}
                 helperText={errors.gender?.message}
               />
@@ -286,6 +291,7 @@ export const BotForm = forwardRef(
                 control={control}
                 label="Date of Birth"
                 required
+                loading={loading}
                 error={!!errors.date_of_birth}
                 helperText={errors.date_of_birth?.message}
               />
@@ -297,6 +303,7 @@ export const BotForm = forwardRef(
                 control={control}
                 label="Interest"
                 required
+                loading={loading}
                 error={!!errors.interest}
                 helperText={errors.interest?.message}
               />
@@ -308,6 +315,7 @@ export const BotForm = forwardRef(
                 control={control}
                 label="Hobbies"
                 required
+                loading={loading}
                 error={!!errors.hobbies}
                 helperText={errors.hobbies?.message}
               />
@@ -319,6 +327,7 @@ export const BotForm = forwardRef(
                 control={control}
                 label="Description"
                 required
+                loading={loading}
                 error={!!errors.description}
                 helperText={
                   errors.description?.message
@@ -332,6 +341,7 @@ export const BotForm = forwardRef(
                 label="Breast Size"
                 options={breastSizeOptions}
                 defaultValue="bre"
+                loading={loading}
               // required
               // error={!!errors.breast_size}
               // helperText={errors.breast_size?.message}
@@ -345,6 +355,7 @@ export const BotForm = forwardRef(
                 label="Butt Size"
                 options={buttSizeOptions}
                 defaultValue={null}
+                loading={loading}
               // required
               // error={!!errors.butt_size}
               // helperText={errors.butt_size?.message}
@@ -358,6 +369,7 @@ export const BotForm = forwardRef(
                 label="Body Size"
                 options={bodySizeOptions}
                 defaultValue={null}
+                loading={loading}
               // required
               // error={!!errors.body_size}
               // helperText={errors.body_size?.message}
@@ -373,6 +385,7 @@ export const BotForm = forwardRef(
                 type="number"
                 label="Family Members"
                 required
+                loading={loading}
                 error={!!errors.family_members}
                 helperText={errors.family_members?.message}
               />
@@ -383,6 +396,7 @@ export const BotForm = forwardRef(
                 name="country_name"
                 control={control}
                 label="Country Name"
+                loading={loading}
               />
             </Grid>
 
@@ -391,6 +405,7 @@ export const BotForm = forwardRef(
                 name="country_flag"
                 control={control}
                 label="Country Flag"
+                loading={loading}
               />
             </Grid>
 
@@ -410,6 +425,7 @@ export const BotForm = forwardRef(
                   label="Premium:"
                   control={control}
                   size="small"
+                  loading={loading}
                 />
               </Grid>
 
@@ -419,6 +435,7 @@ export const BotForm = forwardRef(
                   label="NSFW:"
                   control={control}
                   size="small"
+                  loading={loading}
                 />
               </Grid>
 
@@ -428,6 +445,7 @@ export const BotForm = forwardRef(
                   label="New Bot:"
                   control={control}
                   size="small"
+                  loading={loading}
                 />
               </Grid>
 
@@ -437,6 +455,7 @@ export const BotForm = forwardRef(
                   label="Web Platform:"
                   control={control}
                   size="small"
+                  loading={loading}
                 />
               </Grid>
 
@@ -446,6 +465,7 @@ export const BotForm = forwardRef(
                   label="IOS Platform:"
                   control={control}
                   size="small"
+                  loading={loading}
                 />
               </Grid>
 
@@ -455,6 +475,7 @@ export const BotForm = forwardRef(
                   label="Android Platform:"
                   control={control}
                   size="small"
+                  loading={loading}
                 />
               </Grid>
 
@@ -464,6 +485,7 @@ export const BotForm = forwardRef(
                   label="Active:"
                   control={control}
                   size="small"
+                  loading={loading}
                 />
               </Grid>
 
@@ -475,6 +497,7 @@ export const BotForm = forwardRef(
                 label="Profile Photo"
                 placeholder="Upload Profile Photo"
                 required
+                loading={loading}
                 error={!!errors.photos}
                 helperText={errors.photos?.message}
               // error={!photos}
@@ -488,6 +511,7 @@ export const BotForm = forwardRef(
                 name="bg_photo"
                 label="Background photo"
                 placeholder="Upload Background Photo"
+                loading={loading}
               // required
               // error={!!errors.bg_photo}
               // helperText={errors.bg_photo?.message}
@@ -518,7 +542,7 @@ export const BotForm = forwardRef(
             error={!!errors.images}
             helperText={errors.images?.message}
             disabled={defaultValues.id}
-
+            loading={loading}
           />
 
         </Grid>

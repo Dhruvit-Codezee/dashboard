@@ -1,5 +1,6 @@
 import { Autocomplete as MuiAutocomplete, TextField as MuiTextField, InputLabel, Stack } from "@mui/material";
 import { useController } from "react-hook-form";
+import { Skeleton } from "./Skeleton";
 
 export function AutoComplete({
     control,
@@ -8,7 +9,7 @@ export function AutoComplete({
     rules,
     options = [],
     getOptionLabel = (option) => option.label || "",
-    isOptionEqualToValue = (option, value) => option.value === value, // Check based on key (value)
+    isOptionEqualToValue = (option, value) => option.value === value,
     required,
     disabled,
     placeholder = "",
@@ -22,9 +23,12 @@ export function AutoComplete({
         field: { value, onChange, ...restField },
     } = useController({ name, control, rules });
 
-    // Find the matching option based on the current key (value)
     const currentOption =
         options.find((option) => option.label === value) || null;
+
+    if (loading) {
+        return <Skeleton label={label} />;
+    }
 
     return (
         <Stack gap="10px">
@@ -43,11 +47,11 @@ export function AutoComplete({
                 disabled={disabled}
                 loading={loading}
                 options={options}
-                getOptionLabel={getOptionLabel} // Display the label based on the option
-                isOptionEqualToValue={isOptionEqualToValue} // Compare using key (value)
-                value={currentOption} // Set the current selected option based on the key (value)
+                getOptionLabel={getOptionLabel} 
+                isOptionEqualToValue={isOptionEqualToValue} 
+                value={currentOption} 
                 onChange={(_, selectedOption) => {
-                    // Set the key (value) as the selected value
+                    
                     onChange(selectedOption ? selectedOption.label : "");
                 }}
                 onInputChange={onInputChange}

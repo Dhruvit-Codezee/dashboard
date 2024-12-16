@@ -12,7 +12,7 @@ import { emailRegex } from "@/utils/regex";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TextField } from "../common/TextField";
+import { TextField } from "../common/TextField/TextField";
 import { PasswordField } from "../common/PasswordField";
 import { Button } from "../common/Button";
 

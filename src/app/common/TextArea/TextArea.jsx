@@ -11,6 +11,7 @@ import {
 } from "react-hook-form";
 
 import { TextAreaContainer } from "./TextArea.styled";
+import { Skeleton } from "../TextField/Skeleton";
 
 export function TextArea({
   control,
@@ -33,9 +34,9 @@ export function TextArea({
 
   const theme = useTheme();
 
-  // if (loading) {
-  //   return <Skeleton rows={minRows} />;
-  // }
+  if (loading) {
+    return <Skeleton rows={minRows} />;
+  }
 
   return (
     <Stack gap="10px">
@@ -67,7 +68,7 @@ export function TextArea({
           sx={{
             color: `red`,
             whiteSpace: "pre",
-            textWrap: "wrap", 
+            textWrap: "wrap",
             marginLeft: "15px",
           }}
         >

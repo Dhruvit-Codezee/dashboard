@@ -6,7 +6,7 @@ import {
 import {
   useController,
 } from "react-hook-form";
-// import { Skeleton } from "./FileUpload/Skeleton";
+import { Skeleton } from "./Skeleton";
 
 export function TextField({
   control,
@@ -26,9 +26,9 @@ export function TextField({
     field: { onChange, ...restField },
   } = useController({ name, control, defaultValue, rules });
 
-  // if (loading) {
-  //   return <Skeleton rows={rows} />;
-  // }
+  if (loading) {
+    return <Skeleton rows={rows} />;
+  }
 
   return (
     <Stack gap="10px">

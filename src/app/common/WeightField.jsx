@@ -5,6 +5,7 @@ import {
     InputAdornment,
 } from "@mui/material";
 import { useController } from "react-hook-form";
+import { Skeleton } from "./TextField/Skeleton";
 
 export function WeightField({
     control,
@@ -23,12 +24,19 @@ export function WeightField({
     const {
         field: { onChange, value, ...restField },
     } = useController({ name, control, defaultValue, rules });
+
     const handleKeyPress = (event) => {
-        // Prevent non-numeric input
+
         if (!/[0-9]/.test(event.key)) {
             event.preventDefault();
         }
     };
+
+
+    if (loading) {
+        return <Skeleton rows={rows} />;
+    }
+
     return (
         <Stack gap="10px">
             {label && (
@@ -48,11 +56,11 @@ export function WeightField({
                 required={required}
                 fullWidth
                 placeholder={placeholder || label}
-                type="text" // Use text type to allow better control
+                type="text" 
                 value={value}
                 onKeyPress={handleKeyPress}
                 onChange={(event) => {
-                    const numericValue = event.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                    const numericValue = event.target.value.replace(/\D/g, ""); 
                     onChange(numericValue ? parseInt(numericValue, 10) : null);
                 }}
                 InputProps={{

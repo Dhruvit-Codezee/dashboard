@@ -3,7 +3,7 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { IconButton, InputAdornment } from "@mui/material";
 import { useState } from "react";
-import { TextField } from "./TextField";
+import { TextField } from "./TextField/TextField";
 
 export function PasswordField(
   props

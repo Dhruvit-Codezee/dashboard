@@ -1,5 +1,6 @@
 import { InputLabel, Stack, TextField as MuiTextField, Typography } from "@mui/material";
 import { useController } from "react-hook-form";
+import { Skeleton } from "./TextField/Skeleton";
 
 export function HeightPick({
     control,
@@ -7,9 +8,11 @@ export function HeightPick({
     defaultValue,
     label = "",
     rules,
+    rows,
     required = false,
     error = false,
     helperText,
+    loading = false,
     ...inputFieldProps
 }) {
     const {
@@ -17,7 +20,6 @@ export function HeightPick({
     } = useController({ name, control, defaultValue, rules });
 
 
-    // Parse current value into feet and inches
     const [feet, inches] = value
         ? value.match(/^(\d+)'(\d{1,2})?"$/)?.slice(1).map(Number) || ["", ""]
         : ["", ""];
@@ -32,10 +34,15 @@ export function HeightPick({
     };
 
     const handleInputChange = (e, maxLength) => {
-        const value = e.target.value.slice(0, maxLength); // Limit to maxLength characters
+        const value = e.target.value.slice(0, maxLength); 
 
-        return value.replace(/^0+(?=\d)/, ""); // Remove leading zeros
+        return value.replace(/^0+(?=\d)/, ""); 
     };
+
+
+    if (loading) {
+        return <Skeleton rows={rows} />;
+    }
 
     return (
         <>

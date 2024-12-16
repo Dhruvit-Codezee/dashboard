@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { useController } from 'react-hook-form';
+import { Skeleton } from './TextField/Skeleton';
 
 export function DragAndDropUpload({
     name,
@@ -11,9 +12,11 @@ export function DragAndDropUpload({
     error = false,
     helperText,
     disabled = false,
+    loading = false,
+    rows
 }) {
-    const { field } = useController({ name, control }); // Using useController to get field data and handlers
-    const [uploadedImages, setUploadedImages] = useState(field.value || []); // Initialize with existing value
+    const { field } = useController({ name, control });
+    const [uploadedImages, setUploadedImages] = useState(field.value || []);
 
     // Handle Drop
     const onDrop = (acceptedFiles) => {
@@ -26,11 +29,10 @@ export function DragAndDropUpload({
             Object.assign(file, { preview: URL.createObjectURL(file) })
         );
 
-        // Avoid setting the state if no new images are added
         if (newImages.length > 0) {
             const updatedImages = [...uploadedImages, ...newImages];
             setUploadedImages(updatedImages);
-            field.onChange(updatedImages); // Update the form value with the new images
+            field.onChange(updatedImages);
         }
     };
 
@@ -40,10 +42,9 @@ export function DragAndDropUpload({
         event.stopPropagation();
         const updatedImages = uploadedImages.filter((img) => img !== image);
         setUploadedImages(updatedImages);
-        field.onChange(updatedImages); // Update the form value after removing an image
+        field.onChange(updatedImages);
     };
 
-    // Setting up Dropzone for file handling
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         accept: {
@@ -51,9 +52,14 @@ export function DragAndDropUpload({
             'image/png': [],
             'image/webp': []
         },
-        multiple: true, // Allow multiple uploads
+        multiple: true,
         disabled,
     });
+
+
+    if (loading) {
+        return <Skeleton rows={rows} />;
+    }
 
     return (
         <>
@@ -81,10 +87,8 @@ export function DragAndDropUpload({
                     Upload Images
                 </Button>
 
-                {/* Uploaded images display */}
                 {uploadedImages.length > 0 && (
                     <Box sx={{ marginTop: 3 }}>
-                        {/* <Typography variant="subtitle1">{label}</Typography> */}
                         <Box
                             sx={{
                                 display: 'flex',
@@ -139,10 +143,6 @@ export function DragAndDropUpload({
                         </Box>
                     </Box>
                 )}
-
-                {/* Error display */}
-                {/* {error && <Typography color="error">{error}</Typography>}
-            {helperText && <Typography>{helperText}</Typography>} */}
             </Box>
             {error && (
                 <Typography
