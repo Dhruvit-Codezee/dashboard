@@ -8,11 +8,7 @@ import { IconBellRinging, IconMenu } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
 import toast from 'react-hot-toast';
 
-interface ItemType {
-  toggleMobileSidebar:  (event: React.MouseEvent<HTMLElement>) => void;
-}
-
-const Header = ({toggleMobileSidebar}: ItemType) => {
+const Header = ({toggleMobileSidebar}) => {
 
   // const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
   // const lgDown = useMediaQuery((theme) => theme.breakpoints.down('lg'));

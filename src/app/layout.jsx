@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import axios from "axios";
-import { baselightTheme } from "@/utils/theme/DefaultColors";
 import { ThemeProvider } from "@mui/material/styles";
 import { SessionLoader } from "@/provider/SessionLoader";
 import { AuthSessionProvider } from "@/provider/AuthSessionProvider";
@@ -11,6 +10,7 @@ import { PrivatePageLayout } from "@/layouts/PrivatePageLayout";
 import { ToastElement } from "./common/ToastElement";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CssBaseline } from "@mui/material";
+import { baselightTheme } from "@/utils/theme/DefaultColors";
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -11,7 +11,7 @@ const SalesOverview = () => {
     // select
     const [month, setMonth] = React.useState('1');
 
-    const handleChange = (event: any) => {
+    const handleChange = (event) => {
         setMonth(event.target.value);
     };
 
@@ -21,7 +21,7 @@ const SalesOverview = () => {
     const secondary = theme.palette.secondary.main;
 
     // chart
-    const optionscolumnchart: any = {
+    const optionscolumnchart = {
         chart: {
             type: 'bar',
             fontFamily: "'Plus Jakarta Sans', sans-serif;",
@@ -78,7 +78,7 @@ const SalesOverview = () => {
             fillSeriesColor: false,
         },
     };
-    const seriescolumnchart: any = [
+    const seriescolumnchart = [
         {
             name: 'Eanings this month',
             data: [355, 390, 300, 350, 390, 180, 355, 390],

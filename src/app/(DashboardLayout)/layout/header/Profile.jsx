@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
-  const handleClick2 = (event: any) => {
+  const handleClick2 = (event) => {
     setAnchorEl2(event.currentTarget);
   };
   const handleClose2 = () => {
